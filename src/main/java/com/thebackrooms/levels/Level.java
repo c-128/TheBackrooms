@@ -11,7 +11,9 @@ import net.minestom.server.tag.Tag;
 
 import javax.swing.text.html.HTML;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.SplittableRandom;
 import java.util.concurrent.CompletableFuture;
 
 public class Level {
@@ -19,6 +21,7 @@ public class Level {
     public static final Tag<String> TAG_LEVEL = Tag.String("Level");
     public static final Tag<List<Integer>> TAG_VISITED_LEVELS = Tag.Integer("VisitedLevels").list().defaultValue(List.of());
     public static final Tag<Double> TAG_SANITY = Tag.Double("Sanity");
+    public static final HashMap<String, Level> LEVELS = new HashMap<>();
 
     private final String id;
     private final int idHashcode;
@@ -28,6 +31,7 @@ public class Level {
     public Level(String id) {
         this.id = id;
         this.idHashcode = id.hashCode();
+        LEVELS.put(id, this);
     }
 
     protected void name(String translationKey) {
