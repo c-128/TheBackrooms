@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.SplittableRandom;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 public class Level {
 
@@ -51,6 +52,10 @@ public class Level {
     }
 
     public void addPlayer(Player player) {
+        addPlayer(player, true);
+    }
+
+    public void addPlayer(Player player, boolean setInstance) {
         player.setTag(TAG_LEVEL, id);
         List<Integer> visitedLevels = player.getTag(TAG_VISITED_LEVELS);
         boolean newlyDiscovered = false;
@@ -61,9 +66,18 @@ public class Level {
             newlyDiscovered = true;
         }
 
-        if (player.getInstance() != instance) player.setInstance(instance);
-        player.teleport(getSpawnPos(player));
-        onPlayerJoin(player, newlyDiscovered);
+        try {
+            if (player.getInstance() != instance)
+                if (setInstance) player.setInstance(instance).get();
+            player.teleport(getSpawnPos(player));
+            onPlayerJoin(player, newlyDiscovered);
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void removePlayer(Player player) {
+        onPlayerLeave(player);
     }
 
     public void init() {
@@ -84,6 +98,8 @@ public class Level {
     }
 
     public void onPlayerJoin(Player player, boolean newlyDiscovered) {
+    }
 
+    public void onPlayerLeave(Player player) {
     }
 }

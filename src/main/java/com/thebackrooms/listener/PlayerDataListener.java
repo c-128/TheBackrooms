@@ -1,10 +1,12 @@
 package com.thebackrooms.listener;
 
 import com.thebackrooms.levels.Level;
+import com.thebackrooms.levels.Levels;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.player.PlayerDisconnectEvent;
 import net.minestom.server.event.player.PlayerLoginEvent;
+import net.minestom.server.event.player.PlayerSpawnEvent;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.tag.Tag;
 import org.jglrxavpok.hephaistos.nbt.*;
@@ -37,16 +39,21 @@ public class PlayerDataListener {
         });
 
         MinecraftServer.getGlobalEventHandler().addListener(PlayerLoginEvent.class, event -> {
+            event.setSpawningInstance(Levels.LEVEL_0.getInstance());
+        });
+
+        MinecraftServer.getGlobalEventHandler().addListener(PlayerSpawnEvent.class, event -> {
             Player player = event.getPlayer();
             try {
                 File file = new File("./playerdata/" + player.getUuid() + ".dat");
                 if (!file.exists()) return;
                 NBTReader reader = new NBTReader(file);
                 player.tagHandler().updateContent((NBTCompoundLike) reader.read());
+                reader.close();
+
                 for (int i = 0; i < player.getTag(TAG_INVENTORY).size(); i++)
                     player.getInventory().setItemStack(i, player.getTag(TAG_INVENTORY).get(i));
                 Level.LEVELS.get(player.getTag(Level.TAG_LEVEL)).addPlayer(player);
-                reader.close();
             } catch (IOException | NBTException e) {
                 throw new RuntimeException(e);
             }

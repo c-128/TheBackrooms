@@ -1,10 +1,12 @@
 package com.thebackrooms.main;
 
 
+import com.thebackrooms.commands.WarpCommand;
 import com.thebackrooms.levels.Level;
 import com.thebackrooms.levels.Levels;
 import com.thebackrooms.listener.PlayerDataListener;
 import net.minestom.server.MinecraftServer;
+import net.minestom.server.entity.GameMode;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.event.player.PlayerDisconnectEvent;
@@ -34,15 +36,11 @@ public class Main {
         Levels.init();
         PlayerDataListener.init();
 
-        MinecraftServer.getGlobalEventHandler().addListener(PlayerLoginEvent.class, event -> {
-            event.setSpawningInstance(Levels.LEVEL_0.getInstance());
-            event.getPlayer().getInventory().addItemStack(ItemStack.of(Material.DIRT));
-        });
-        MinecraftServer.getGlobalEventHandler().addListener(PlayerSpawnEvent.class, event -> {
-            Player player = event.getPlayer();
-            Levels.LEVEL_0.addPlayer(player);
-        });
+        MinecraftServer.getCommandManager().register(new WarpCommand());
 
+        MinecraftServer.getGlobalEventHandler().addListener(PlayerLoginEvent.class, event -> {
+            event.getPlayer().setGameMode(GameMode.ADVENTURE);
+        });
 
         minecraftServer.start("0.0.0.0", 25565);
     }
